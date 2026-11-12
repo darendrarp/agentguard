@@ -33,8 +33,11 @@ const CONFIG = {
     'https://test.rpc.fastnear.com',
   ],
 
-  // MyNearWallet (testnet). wallet.testnet.near.org redirects to it.
-  WALLET_URL: 'https://wallet.testnet.near.org',
+  // MyNearWallet testnet instance. NOTE (12 Nov 2026, live browser test):
+  // wallet.testnet.near.org no longer redirects to a login — it is a
+  // discontinued-service directory page. Point directly at testnet
+  // MyNearWallet so "Connect testnet wallet" opens a real sign-in.
+  WALLET_URL: 'https://testnet.mynearwallet.com',
   EXPLORER_URL: 'https://explorer.testnet.near.org',
 
   // near-api-js v7 ESM bundle (same version as the CLI demo: 7.5.3).
