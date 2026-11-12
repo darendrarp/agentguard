@@ -1,0 +1,17 @@
+{
+  "name": "agentguard-cli-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scripted CLI demo for AgentGuard — a policy-guarded vault for AI agents on NEAR testnet.",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "demo": "node cli-demo.mjs"
+  },
+  "dependencies": {
+    "near-api-js": "^7.5.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

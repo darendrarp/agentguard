@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentGuard — Policy-Guarded Agent Vault (NEAR Testnet)</title>
+  <meta name="description" content="AgentGuard: an AI agent can spend from a vault only within an on-chain policy. Live demo on NEAR testnet." />
+  <link rel="stylesheet" href="styles.css" />
+  <!-- near-api-js 7.5.3 is loaded as an ES module by app.js (dynamic import
+       from jsDelivr, with a plain-fetch fallback for view calls if the CDN
+       fails). See NOTES.md. -->
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="shield" aria-hidden="true">🛡️</span>
+      <div>
+        <h1>AgentGuard</h1>
+        <p class="tagline">Policy-guarded vault for AI agents — NEAR testnet</p>
+      </div>
+    </div>
+    <div class="wallet-box">
+      <span id="wallet-status" class="wallet-status">Not connected</span>
+      <button id="btn-connect" class="btn btn-primary">Connect testnet wallet</button>
+      <button id="btn-disconnect" class="btn btn-ghost hidden">Disconnect</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Deployment / connection status banner -->
+    <section id="status-banner" class="banner banner-pending" role="status">
+      <span id="status-banner-text">Checking contract on testnet…</span>
+    </section>
+
+    <!-- Live panels -->
+    <section class="panels">
+      <div class="panel">
+        <h2>Vault</h2>
+        <div class="big-number"><span id="vault-balance">—</span> <span class="unit">Ⓝ</span></div>
+        <dl class="kv">
+          <div><dt>Contract</dt><dd id="vault-contract">—</dd></div>
+          <div><dt>Owner</dt><dd id="vault-owner">—</dd></div>
+          <div><dt>Agent</dt><dd id="vault-agent">—</dd></div>
+          <div><dt>Day (on-chain)</dt><dd id="vault-day">—</dd></div>
+        </dl>
+      </div>
+
+      <div class="panel">
+        <h2>Policy</h2>
+        <dl class="kv">
+          <div><dt>Max per transaction</dt><dd id="policy-max-tx">—</dd></div>
+          <div><dt>Daily limit</dt><dd id="policy-daily">—</dd></div>
+          <div><dt>Spent today</dt><dd id="policy-spent">—</dd></div>
+          <div><dt>Remaining today</dt><dd id="policy-remaining">—</dd></div>
+          <div><dt>Vault state</dt><dd><span id="policy-paused" class="badge badge-neutral">—</span></dd></div>
+        </dl>
+        <div class="progress-wrap" title="Daily budget used">
+          <div id="daily-progress" class="progress-bar" style="width: 0%"></div>
+        </div>
+        <p class="hint"><span id="daily-progress-label">—</span> of daily budget used</p>
+      </div>
+
+      <div class="panel">
+        <h2>Allowlist</h2>
+        <ul id="allowlist" class="allowlist"><li class="muted">Loading…</li></ul>
+        <p class="hint">Only these receivers can be paid by the agent. Anyone else is blocked on-chain.</p>
+      </div>
+    </section>
+
+    <div class="refresh-row">
+      <button id="btn-refresh" class="btn btn-secondary">↻ Refresh live data</button>
+      <span id="last-updated" class="muted">Auto-refreshes every 10s</span>
+    </div>
+
+    <!-- Scenarios -->
+    <section>
+      <h2 class="section-title">Try it — judge scenarios</h2>
+      <p class="section-sub">
+        No wallet? No problem — each scenario shows the recorded outcome from our real
+        testnet runs. Connect a testnet wallet as the <strong>agent</strong> account to
+        execute live spends, or as the <strong>owner</strong> to pause / unpause.
+      </p>
+
+      <div class="cards">
+        <!-- Scenario 1 -->
+        <article class="card">
+          <div class="card-head">
+            <span class="card-num">1</span>
+            <h3>Agent pays 5 NEAR to a stranger</h3>
+          </div>
+          <p>5 NEAR is <strong>over the 1 NEAR max per transaction</strong>, and the
+            receiver is <strong>not on the allowlist</strong>. The contract must refuse.</p>
+          <div class="expect expect-blocked">Expected: <strong>BLOCKED</strong></div>
+          <button class="btn btn-danger btn-scenario" data-scenario="stranger">
+            Run scenario 1
+          </button>
+          <div class="result hidden" id="result-stranger"></div>
+        </article>
+
+        <!-- Scenario 2 -->
+        <article class="card">
+          <div class="card-head">
+            <span class="card-num">2</span>
+            <h3>Agent pays 0.5 NEAR to the allowlisted shop</h3>
+          </div>
+          <p>0.5 NEAR is <strong>within the 1 NEAR max</strong> and
+            <code>shop.agentguard-adt.testnet</code> is <strong>allowlisted</strong>.
+            The contract must allow it and move funds.</p>
+          <div class="expect expect-allowed">Expected: <strong>ALLOWED</strong></div>
+          <button class="btn btn-success btn-scenario" data-scenario="shop">
+            Run scenario 2
+          </button>
+          <div class="result hidden" id="result-shop"></div>
+        </article>
+
+        <!-- Scenario 3 -->
+        <article class="card">
+          <div class="card-head">
+            <span class="card-num">3</span>
+            <h3>Owner pauses the vault, agent tries to pay</h3>
+          </div>
+          <p>The owner hits the pause switch. While paused, <strong>every</strong> spend
+            is blocked — even a small payment to an allowlisted receiver.</p>
+          <div class="expect expect-blocked">Expected: <strong>BLOCKED (paused)</strong></div>
+          <div class="btn-row">
+            <button class="btn btn-warning" id="btn-pause">⏸ Pause vault (owner)</button>
+            <button class="btn btn-ghost" id="btn-unpause">▶ Unpause vault (owner)</button>
+          </div>
+          <button class="btn btn-danger btn-scenario" data-scenario="paused">
+            Agent tries to pay 0.5 NEAR to shop
+          </button>
+          <div class="result hidden" id="result-paused"></div>
+          <div class="result hidden" id="result-pause-action"></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Decision log -->
+    <section>
+      <h2 class="section-title">Decision log <span class="muted small">(on-chain, latest first)</span></h2>
+      <div class="table-wrap">
+        <table class="log-table">
+          <thead>
+            <tr><th>Time</th><th>Receiver</th><th>Amount</th><th>Decision</th><th>Reason</th><th>Tx</th></tr>
+          </thead>
+          <tbody id="log-body">
+            <tr><td colspan="6" class="muted">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="hint">Every allow / block decision is logged by the contract. A blocked spend
+        still costs gas (it is a real transaction) but moves no funds.</p>
+    </section>
+
+    <!-- How it works -->
+    <section class="how">
+      <h2 class="section-title">How it works</h2>
+      <ol class="steps">
+        <li><strong>Owner sets a policy</strong> on-chain: max per transaction, daily budget,
+          receiver allowlist, and a pause switch.</li>
+        <li><strong>The agent gets a function-call key</strong> scoped to <code>spend()</code>
+          only — it can never withdraw, change the policy, or move funds any other way.</li>
+        <li><strong>Every spend is checked by the contract</strong>: paused? over max/tx?
+          over daily budget? receiver allowlisted? Each check that fails blocks the spend.</li>
+        <li><strong>Every decision is logged on-chain</strong> with the reason, so the owner
+          can audit exactly what the agent tried to do.</li>
+      </ol>
+      <p class="muted">Contract: <code id="how-contract">guard.agentguard-adt.testnet</code> ·
+        Network: NEAR testnet · Amounts shown in NEAR (1 NEAR = 10<sup>24</sup> yoctoNEAR).</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>AgentGuard — NEAR Hackathon “Build Beyond Boundaries”, Nov 2026 ·
+      <a href="../README.md">Repo README</a> ·
+      <a id="footer-explorer" href="https://explorer.testnet.near.org/accounts/guard.agentguard-adt.testnet" target="_blank" rel="noopener">Contract on explorer</a>
+    </p>
+    <p class="muted small">Demo on testnet only. This page never asks for a seed phrase or private key — signing happens in your wallet.</p>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

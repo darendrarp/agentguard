@@ -1,0 +1,27 @@
+[package]
+name = "agentguard"
+version = "0.1.0"
+edition = "2021"
+description = "AgentGuard — policy-guarded agent vault for NEAR (hackathon entry)"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+near-sdk = "5"
+serde = { version = "1", features = ["derive"] }
+borsh = "1"
+
+# near-sdk 5.x only compiles under a valid cfg; for `cargo test` the
+# `unit-testing` feature (enabled via dev-dependencies) is the sanctioned one.
+[dev-dependencies]
+near-sdk = { version = "5", features = ["unit-testing"] }
+
+[profile.release]
+codegen-units = 1
+opt-level = "z"
+lto = true
+debug = false
+panic = "abort"
+overflow-checks = true
