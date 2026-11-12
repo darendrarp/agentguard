@@ -45,8 +45,6 @@ Record on testnet against the live deployment
   (e.g. a 43-char GitHub URL + a 35-char demo URL) the post is 257
   characters — under the 280 limit. Under X's t.co counting every URL
   counts as 23 characters, so any reasonable pair of URLs fits.
-- **Fill in before posting:** `[repo URL]` = public GitHub repo,
-  `[demo URL]` = deployed web demo URL. Both are [PENDING] at the time of
-  writing — do not post with the placeholders.
+- **Fill in before posting:** `[repo URL]` = https://github.com/darendrarp/agentguard, `[demo URL]` = https://darendrarp.github.io/agentguard/web/ (both live since 12 Nov ~22:05 WIB).
 - **Attach:** the demo video (or a link to it) + optionally a screenshot
   of the blocked-spend decision log.

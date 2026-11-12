@@ -27,7 +27,7 @@ Testnet only. MIT licensed.
 | Demo merchant | `shop.agentguard-adt.testnet` |
 | Demo policy | max 1 NEAR/tx, 5 NEAR/day, allowlist `[shop.agentguard-adt.testnet, agentguard-adt.testnet]` |
 | Deploy tx | [`22fUrgFWJZeyZKV8RSmZyVmYcRssrdrh5ZeiyGSRL447`](https://explorer.testnet.near.org/transactions/22fUrgFWJZeyZKV8RSmZyVmYcRssrdrh5ZeiyGSRL447) (deploy + `init` in one tx, 12 Nov 2026 ~21:50 WIB) |
-| Web demo | [PENDING — web demo URL; local run: see `web/README.md`] |
+| Web demo | [darendrarp.github.io/agentguard/web/](https://darendrarp.github.io/agentguard/web/) (GitHub Pages; local run: see `web/README.md`) |
 | CLI demo | `demo/cli-demo.mjs` (Node, `near-api-js` 7.x) |
 | Contract | Rust (`near-sdk`), `contract/` |
 | Tracks | **Security** (primary), **Agents** (secondary) |
@@ -89,7 +89,7 @@ against the live testnet deployment.
 
 ### Option A — web demo (fastest)
 
-1. Open the web demo: [PENDING — web demo URL].
+1. Open the web demo: https://darendrarp.github.io/agentguard/web/.
 2. **Do:** click "Pay 5 NEAR to stranger" → **see:** BLOCKED, reason
    `over_max_per_tx` (the stranger is also not allowlisted, but the per-tx
    cap is checked first), entry in the decision log.
